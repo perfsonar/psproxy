@@ -70,14 +70,3 @@ def handle_error(error):
     payload['status'] = error.status
     payload['message'] = error.message
     return jsonify(payload), 400
-
-def add_cors_headers(response):
-    origin = app.config['APPURL']
-    response.headers['Access-Control-Allow-Origin'] = origin
-    if request.method == 'OPTIONS':
-        response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
-        headers = request.headers.get('Access-Control-Request-Headers')
-        if headers:
-            response.headers['Access-Control-Allow-Headers'] = headers
-    return response
-app.after_request(add_cors_headers)
