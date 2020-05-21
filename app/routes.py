@@ -23,7 +23,8 @@ def runm():
         jsondata = create_test_json(data)
         
         try:
-            response = requests.post(url, json.dumps(jsondata),  headers=header,  verify=False,  timeout=60)
+            #https://requests.readthedocs.io/en/master/user/advanced/#timeouts
+            response = requests.post(url, json.dumps(jsondata),  headers=header,  verify=False,  timeout=(20, 60))
         except requests.exceptions.HTTPError as errh:
             app.logger.error('Http Error: %s', repr(errh))
             raise RequestError('Http Error', 400, { 'ext': repr(errh) })
