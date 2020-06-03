@@ -28,7 +28,10 @@ class FormJSONMap(object):
     # common
     def v_select_test(self,  argval,  tdict):
         tdict["test"]["type"] = argval
- 
+
+    def v_select_ipversion(self,  argval,  tdict):
+        tdict["test"]["spec"]["ip-version"] = int(argval)
+
     def v_select_source(self,  argval,  tdict):
         tdict["test"]["spec"]["source"] = argval
         

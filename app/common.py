@@ -38,7 +38,6 @@ def create_test_json(data):
         "test": { 
             "spec" : {
                 "schema" : 1, 
-                "ip-version": 4,
             }
         },
         "schedule" : {}

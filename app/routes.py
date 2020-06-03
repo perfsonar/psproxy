@@ -21,7 +21,6 @@ def runm():
         header = {"content-type": "application/json"}
 
         jsondata = create_test_json(data)
-        
         try:
             #https://requests.readthedocs.io/en/master/user/advanced/#timeouts
             response = requests.post(url, json.dumps(jsondata),  headers=header,  verify=False,  timeout=(20, 60))
@@ -59,6 +58,8 @@ def runm():
             except requests.exceptions.RequestException as err:
                 app.logger.error("JSON response error: %s", repr(err))
                 raise RequestError('JSON response error', 400, { 'ext': repr(err) })
+            
+            
             return jsonify(first_run_url)
         else:
             app.logger.error("Request code not OK")
