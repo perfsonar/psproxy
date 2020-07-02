@@ -59,12 +59,24 @@ def runm():
                 app.logger.error("JSON response error: %s", repr(err))
                 raise RequestError('JSON response error', 400, { 'ext': repr(err) })
             
-            
             return jsonify(first_run_url)
         else:
             app.logger.error("Request code not OK")
             raise RequestError('Serv error', 400, { 'ext': 'Far server response code not OK' })
 
+@app.route('/api/getfirstrun', methods = ['POST'])
+@app.route('/api/getresults', methods = ['POST'])
+def getjson():
+    if request.method == 'POST':
+        data = request.get_json()
+        try:
+            r = requests.get(data, verify=False)
+            return r.json()
+        except requests.exceptions.RequestException as err:
+            app.logger.error("Unknown Error: %s" + repr(err))
+            raise RequestError('Unknown Error', 400, { 'ext': repr(err) })
+
+    
 @app.errorhandler(RequestError)
 def handle_error(error):
     """Catch BadRequest exception globally, serialize into JSON, and respond with 400."""
