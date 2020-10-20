@@ -6,6 +6,8 @@ from app.requesterror import RequestError
 from flask import jsonify
 import requests
 
+from pprint import pprint
+
 @app.route('/api/nodes')
 def nodes():
     url = app.config['MADDASH']
@@ -65,13 +67,43 @@ def runm():
             raise RequestError('Serv error', 400, { 'ext': 'Far server response code not OK' })
 
 @app.route('/api/getfirstrun', methods = ['POST'])
-@app.route('/api/getresults', methods = ['POST'])
 def getjson():
     if request.method == 'POST':
         data = request.get_json()
         try:
             r = requests.get(data, verify=False)
             return r.json()
+        except requests.exceptions.RequestException as err:
+            app.logger.error("Unknown Error: %s" + repr(err))
+            raise RequestError('Unknown Error', 400, { 'ext': repr(err) })
+
+
+@app.route('/api/getresults', methods = ['POST'])
+def resgetjson():
+    if request.method == 'POST':
+        data = request.get_json()
+        taskurl = ''
+        testtype = ''
+        if(data.endswith('/runs/first')) :
+            taskurl = data[0:-11]
+            try:
+                t = requests.get(taskurl, verify=False)
+                tr = t.json()
+                testtype = tr['test']['type']
+            except requests.exceptions.RequestException as err:
+                app.logger.error("Unknown Error: %s" + repr(err))
+                raise RequestError('Unknown Error', 400, { 'ext': repr(err) })
+        try:
+            r = requests.get(data, verify=False)
+            a = r.json()
+            if(a['state'] == 'finished') :
+                a['result']['testtype'] = testtype
+                a['result']['tr'] = tr
+                if((testtype == 'latency') ):
+                    b = a['result']['raw-packets']
+                    for i in range(len(b)):
+                        a['result']['raw-packets'][i]['calclatency'] = round(1000 * (b[i]['dst-ts'] - b[i]['src-ts'] ) / (2**32),  2)
+            return a
         except requests.exceptions.RequestException as err:
             app.logger.error("Unknown Error: %s" + repr(err))
             raise RequestError('Unknown Error', 400, { 'ext': repr(err) })

@@ -78,6 +78,9 @@ class FormJSONMap(object):
         tdict["test"]["spec"]["length"] = int(argval)
 
     #latency
+    def v_latency_output_raw(self,  argval,  tdict):
+        tdict["test"]["spec"]["output-raw"] = argval
+    
     def v_latency_packet_count(self,  argval,  tdict):
         tdict["test"]["spec"]["packet-count"] = int(argval)
 
