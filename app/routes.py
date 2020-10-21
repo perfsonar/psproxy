@@ -101,8 +101,23 @@ def resgetjson():
                 a['result']['tr'] = tr
                 if((testtype == 'latency') ):
                     b = a['result']['raw-packets']
+                    totlatency = 0
+                    recpkts = 0
+                    prevlatency = 0
+                    totaljitter = 0
                     for i in range(len(b)):
-                        a['result']['raw-packets'][i]['calclatency'] = round(1000 * (b[i]['dst-ts'] - b[i]['src-ts'] ) / (2**32),  2)
+                        calclatency = round(1000 * (b[i]['dst-ts'] - b[i]['src-ts'] ) / (2**32),  2)
+                        totaljitter += abs(calclatency - prevlatency)
+                        a['result']['raw-packets'][i]['calclatency'] = calclatency
+                        totlatency += calclatency
+                        recpkts += 1
+                        prevlatency = calclatency
+                    
+                    a['result']['avglatency'] = 0
+                    a['result']['jitter'] = 0
+                    if(recpkts > 0):
+                        a['result']['avglatency']  = round(totlatency / recpkts,  2)
+                        a['result']['jitter']  = round(totaljitter / recpkts,  2)
             return a
         except requests.exceptions.RequestException as err:
             app.logger.error("Unknown Error: %s" + repr(err))
