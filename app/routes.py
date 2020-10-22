@@ -5,8 +5,7 @@ from app.common import *
 from app.requesterror import RequestError
 from flask import jsonify
 import requests
-
-from pprint import pprint
+import numpy as np
 
 @app.route('/api/nodes')
 def nodes():
@@ -105,19 +104,43 @@ def resgetjson():
                     recpkts = 0
                     prevlatency = 0
                     totaljitter = 0
+                    ca = []
                     for i in range(len(b)):
                         calclatency = round(1000 * (b[i]['dst-ts'] - b[i]['src-ts'] ) / (2**32),  2)
+                        if(prevlatency == 0) :
+                            prevlatency = calclatency
                         totaljitter += abs(calclatency - prevlatency)
                         a['result']['raw-packets'][i]['calclatency'] = calclatency
+                        a['result']['raw-packets'][i]['prevlatency'] = prevlatency
                         totlatency += calclatency
                         recpkts += 1
                         prevlatency = calclatency
-                    
-                    a['result']['avglatency'] = 0
-                    a['result']['jitter'] = 0
+                        ca.append(calclatency)
+                    p50 = np.percentile(ca, 50)
+                    p25 = np.percentile(ca, 25)
+                    p75 = np.percentile(ca, 75)
+                    p95 = np.percentile(ca, 95)
+                    median = np.median(ca)
+                    minimum = np.amin(ca)
+                    maximum = np.amax(ca)
+                    a['result']['stats'] = {}
+                    a['result']['stats']['p25'] = p25
+                    a['result']['stats']['p50'] = p50
+                    a['result']['stats']['p75'] = p75
+                    a['result']['stats']['p95'] = p95
+                    a['result']['stats']['p95p50'] = round(p95 - p50, 2)
+                    a['result']['stats']['p75p25'] = round(p75 - p25, 2)
+                    a['result']['stats']['median'] = median
+                    a['result']['stats']['minimum'] = minimum
+                    a['result']['stats']['maximum'] = maximum
+                    a['result']['stats']['avglatency'] = 0
+                    a['result']['stats']['rfcjitter'] = 0
+                    a['result']['stats']['totlatency'] = totlatency
+                    a['result']['stats']['totaljitter'] = totaljitter
+                    a['result']['stats']['recpkts'] = recpkts
                     if(recpkts > 0):
-                        a['result']['avglatency']  = round(totlatency / recpkts,  2)
-                        a['result']['jitter']  = round(totaljitter / recpkts,  2)
+                        a['result']['stats']['avglatency']  = round(totlatency / recpkts,  2)
+                        a['result']['stats']['rfcjitter']  = round(totaljitter / recpkts,  2)
             return a
         except requests.exceptions.RequestException as err:
             app.logger.error("Unknown Error: %s" + repr(err))
