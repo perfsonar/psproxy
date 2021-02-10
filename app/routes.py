@@ -93,6 +93,8 @@ def resgetjson():
                 app.logger.error("Unknown Error: %s" + repr(err))
                 raise RequestError('Unknown Error', 400, { 'ext': repr(err) })
         try:
+            if((testtype == 'throughput') ):
+                data = data + '?wait-merged=1'
             r = requests.get(data, verify=False)
             a = r.json()
             if(a['state'] == 'finished') :
@@ -141,6 +143,8 @@ def resgetjson():
                     if(recpkts > 0):
                         a['result']['stats']['avglatency']  = round(totlatency / recpkts,  2)
                         a['result']['stats']['rfcjitter']  = round(totaljitter / recpkts,  2)
+                elif((testtype == 'throughput') ):
+                    a['result']['testtype'] = testtype
             return a
         except requests.exceptions.RequestException as err:
             app.logger.error("Unknown Error: %s" + repr(err))

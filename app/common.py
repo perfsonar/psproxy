@@ -35,6 +35,8 @@ def get_all_defined_test_tools():
 
 def create_test_json(data):
     t = {
+        "priority": 50,
+        "schema": 3,
         "test": { 
             "spec" : {
                 "schema" : 1, 
