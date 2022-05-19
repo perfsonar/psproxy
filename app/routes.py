@@ -150,7 +150,39 @@ def resgetjson():
             app.logger.error("Unknown Error: %s" + repr(err))
             raise RequestError('Unknown Error', 400, { 'ext': repr(err) })
 
-    
+@app.route('/api/gettests', methods = ['POST'])
+def getpschedulertests():
+    if request.method == 'POST':
+        tests = get_all_defined_tests()
+        data = request.get_json()
+        
+        surl = 'https://%s/pscheduler/tests' % data['select-source']
+        durl = 'https://%s/pscheduler/tests' % data['select-dest']
+        slst = []
+        dlst = []
+        
+        try:
+            s = requests.get(surl, verify=False,  timeout=5)
+            sres = s.json()
+            for x in sres:
+                slst.append(x.rsplit('/', 1)[1])
+        except requests.exceptions.RequestException as err:
+            app.logger.error("Unknown Error: %s" + repr(err))
+        
+        try:
+            d = requests.get(durl, verify=False,  timeout=5)
+            dres = d.json()
+            for x in dres:
+                dlst.append(x.rsplit('/', 1)[1])
+        except requests.exceptions.RequestException as err:
+            app.logger.error("Unknown Error: %s" + repr(err))
+       
+        result = list(set(tests).intersection(slst, dlst))
+        print(result)
+
+        return jsonify(result)
+
+
 @app.errorhandler(RequestError)
 def handle_error(error):
     """Catch BadRequest exception globally, serialize into JSON, and respond with 400."""

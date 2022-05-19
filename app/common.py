@@ -33,6 +33,10 @@ def get_all_defined_test_tools():
     tt['trace'] = ['traceroute',  'tracepath',  'paris-traceroute']
     return tt
 
+def get_all_defined_tests():
+    tt = ['latency', 'rtt',   'throughput',  'trace']
+    return tt
+
 def create_test_json(data):
     t = {
         "priority": 50,
