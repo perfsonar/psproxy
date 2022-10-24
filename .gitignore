@@ -4,3 +4,4 @@ venv/
 psproxy.e4p
 .eric6project/
 config.py
+Dockerfile

@@ -41,7 +41,7 @@ def runm():
         res = ''
         if response.status_code == requests.codes.ok:
             res = response.json()
-            
+
             try:
                 response = requests.get(res,  params={'detail':True},  verify=False)
             except requests.exceptions.RequestException as err:
@@ -53,13 +53,13 @@ def runm():
             else:
                 app.logger.error("Request code not OK")
                 raise RequestError('Request code not OK', 400, { 'ext': '' })
-            
+
             try:
                 first_run_url = res["detail"]["first-run-href"]
             except requests.exceptions.RequestException as err:
                 app.logger.error("JSON response error: %s", repr(err))
                 raise RequestError('JSON response error', 400, { 'ext': repr(err) })
-            
+
             return jsonify(first_run_url)
         else:
             app.logger.error("Request code not OK")
@@ -155,12 +155,12 @@ def getpschedulertests():
     if request.method == 'POST':
         tests = get_all_defined_tests()
         data = request.get_json()
-        
+
         surl = 'https://%s/pscheduler/tests' % data['select-source']
         durl = 'https://%s/pscheduler/tests' % data['select-dest']
         slst = []
         dlst = []
-        
+
         try:
             s = requests.get(surl, verify=False,  timeout=5)
             sres = s.json()
@@ -168,7 +168,7 @@ def getpschedulertests():
                 slst.append(x.rsplit('/', 1)[1])
         except requests.exceptions.RequestException as err:
             app.logger.error("Unknown Error: %s" + repr(err))
-        
+
         try:
             d = requests.get(durl, verify=False,  timeout=5)
             dres = d.json()
@@ -176,7 +176,7 @@ def getpschedulertests():
                 dlst.append(x.rsplit('/', 1)[1])
         except requests.exceptions.RequestException as err:
             app.logger.error("Unknown Error: %s" + repr(err))
-       
+
         result = list(set(tests).intersection(slst, dlst))
         print(result)
 
