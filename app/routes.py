@@ -9,8 +9,24 @@ import numpy as np
 
 @app.route('/api/nodes')
 def nodes():
-    url = app.config['MADDASH']
-    nodes = get_nodes(url)
+    pscurl = app.config['PSCONFIG']
+    n = get_nodes(pscurl)
+
+    nodes = {}
+    l = list()
+    for tmpnode in n["addresses"].keys():
+        d={}
+        tn = n["addresses"][tmpnode]
+        if 'no-agent' not in tn:
+          if '_meta' in tn:
+            d['id']=tn['address']
+            d['name']=tn['_meta']['display-name']
+            l.append(d)
+          else:
+            d['id']=tn['address']
+            d['name']=tn['host']
+
+    nodes['rows'] = l
     return nodes
 
 @app.route('/api/runm', methods = ['POST'])
