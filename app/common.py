@@ -1,11 +1,12 @@
-import urllib.request, json
 import requests
 from app.formjsonmap import FormJSONMap
 
 def get_nodes(site):
-    with urllib.request.urlopen(site) as url:
-        nodes = json.loads(url.read().decode())
-        return nodes
+  r = requests.get(site, verify=False)
+  nodes = r.json()
+  return nodes
+
+
 
 def get_test_tools(site,  test):
 
@@ -41,14 +42,14 @@ def create_test_json(data):
     t = {
         "priority": 50,
         "schema": 3,
-        "test": { 
+        "test": {
             "spec" : {
-                "schema" : 1, 
+                "schema" : 1,
             }
         },
         "schedule" : {}
-    } 
-    
+    }
+
     for key, value in data.items():
         s = FormJSONMap()
         if key == 'trace-select-tools':
