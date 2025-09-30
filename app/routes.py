@@ -12,22 +12,21 @@ def nodes():
     pscurl = app.config['PSCONFIG']
     n = get_nodes(pscurl)
 
-    nodes = {}
-    l = list()
-    for tmpnode in n["addresses"].keys():
-        d={}
-        tn = n["addresses"][tmpnode]
-        if 'no-agent' not in tn:
-          if '_meta' in tn:
-            d['id']=tn['address']
-            d['name']=tn['_meta']['display-name']
-            l.append(d)
-          else:
-            d['id']=tn['address']
-            d['name']=tn['host']
+    rows = []
+    for tn in n.get("addresses", {}).values():
+        # skip nodes explicitly marked no-agent (treat any truthy value as "skip")
+        if tn.get('no-agent'):
+            continue
 
-    nodes['rows'] = l
-    return nodes
+        d = {'id': tn.get('address')}
+
+        # prefer display-name, fall back to host, then address
+        meta = tn.get('_meta') or {}
+        d['name'] = meta.get('display-name') or tn.get('host') or tn.get('address')
+        rows.append(d)
+
+    return {'rows': rows}
+
 
 @app.route('/api/runm', methods = ['POST'])
 def runm():
