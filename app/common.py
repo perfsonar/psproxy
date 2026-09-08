@@ -47,7 +47,9 @@ def create_test_json(data):
                 "schema" : 1,
             }
         },
-        "schedule" : {}
+        "schedule" : {
+          "slip": "PT10S"
+        }
     }
 
     for key, value in data.items():
